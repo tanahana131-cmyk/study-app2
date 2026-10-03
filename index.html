@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 定期試験 暗記アプリ</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f7fb;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Yu Gothic",sans-serif}
+header{background:white;padding:18px 16px;border-bottom:1px solid #ddd;position:sticky;top:0}
+h1{font-size:22px;margin:0 0 12px}
+.stats{display:flex;gap:8px}
+.stat{flex:1;background:#f0f2f7;border-radius:12px;padding:8px;text-align:center;font-size:12px}
+.stat b{display:block;font-size:20px}
+main{max-width:700px;margin:auto;padding:16px}
+section{background:white;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 2px 10px #0001}
+h2{font-size:18px;margin:0 0 12px}
+label{display:block;font-weight:bold;font-size:13px;margin:12px 0 6px}
+input,textarea,select,button{width:100%;font:inherit;border-radius:10px}
+input,textarea,select{padding:11px;border:1px solid #ccc;background:white}
+textarea{min-height:90px}
+button{padding:12px;margin-top:10px;border:0;background:#333;color:white;font-weight:bold}
+.secondary{background:#e9ebf0;color:#222}
+.danger{background:#c83b3b}
+.quiz{background:#f8f9fc;border-radius:14px;padding:16px}
+.subject{font-size:12px;background:#e7eaf2;padding:4px 8px;border-radius:999px;display:inline-block}
+.question{font-size:19px;line-height:1.6;margin-top:8px;white-space:pre-wrap}
+.answer{margin-top:12px;padding:12px;background:white;border:1px dashed #aaa;border-radius:10px}
+.row{display:flex;gap:8px}.row button{flex:1}
+.muted{color:#777;font-size:13px}
+.item{border-top:1px solid #eee;padding:12px 0}
+</style>
+</head>
+
+<body>
+<header>
+<h1>📚 定期試験 暗記アプリ</h1>
+<div class="stats">
+<div class="stat">登録<b id="count">0</b>問</div>
+<div class="stat">正解<b id="correct">0</b></div>
+<div class="stat">不正解<b id="incorrect">0</b></div>
+</div>
+</header>
+
+<main>
+
+<section>
+<h2>✏️ 問題を登録</h2>
+
+<label>教科</label>
+<select id="subject">
+<option>国語</option>
+<option>数学</option>
+<option>英語</option>
+<option>理科</option>
+<option>社会</option>
+<option>その他</option>
+</select>
+
+<label>問題</label>
+<textarea id="question" placeholder="例：鎌倉幕府が成立した年は？"></textarea>
+
+<label>答え</label>
+<input id="answer" placeholder="例：1192年">
+
+<button onclick="addQ()">＋ 問題を登録</button>
+</section>
+
+<section>
+<h2>🎲 ランダム問題</h2>
+<div id="quiz" class="muted">「問題を出す」を押してスタート！</div>
+<button onclick="nextQ()">🎲 問題を出す</button>
+</section>
+
+<section>
+<h2>📋 登録した問題</h2>
+<div id="list"></div>
+<button class="danger" onclick="clearAll()">すべて削除</button>
+</section>
+
+</main>
+
+<script>
+let qs=JSON.parse(localStorage.getItem("teikiQs")||"[]");
+let st=JSON.parse(localStorage.getItem("teikiSt")||'{"correct":0,"incorrect":0}');
+let cur=null;
+
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+
+function save(){
+localStorage.setItem("teikiQs",JSON.stringify(qs));
+localStorage.setItem("teikiSt",JSON.stringify(st));
+render();
+}
+
+function addQ(){
+let s=subject.value,q=question.value.trim(),a=answer.value.trim();
+if(!q||!a){alert("問題と答えを入力してね！");return}
+qs.push({id:Date.now(),s:s,q:q,a:a,correct:0,incorrect:0});
+question.value="";
+answer.value="";
+save();
+alert("登録したよ！📚");
+}
+
+function nextQ(){
+if(!qs.length){
+quiz.innerHTML="まだ問題が登録されていないよ！";
+return;
+}
+cur=qs[Math.floor(Math.random()*qs.length)];
+quiz.innerHTML=
+'<div class="quiz">'+
+'<div class="subject">'+esc(cur.s)+'</div>'+
+'<div class="question">'+esc(cur.q)+'</div>'+
+'<button class="secondary" onclick="showA()">👀 答えを見る</button>'+
+'<div id="ans"></div></div>';
+}
+
+function showA(){
+ans.innerHTML=
+'<div class="answer"><b>答え：</b>'+esc(cur.a)+'</div>'+
+'<div class="row">'+
+'<button onclick="mark(1)">⭕ 正解</button>'+
+'<button onclick="mark(0)">❌ 不正解</button>'+
+'</div>';
+}
+
+function mark(ok){
+let q=qs.find(x=>x.id===cur.id);
+if(ok){q.correct++;st.correct++}
+else{q.incorrect++;st.incorrect++}
+save();
+nextQ();
+}
+
+function render(){
+count.textContent=qs.length;
+correct.textContent=st.correct;
+incorrect.textContent=st.incorrect;
+
+list.innerHTML=qs.length?
+qs.slice().reverse().map(q=>
+'<div class="item">'+
+'<div class="muted">'+esc(q.s)+'　正解 '+q.correct+
+' / 不正解 '+q.incorrect+'</div>'+
+'<b>'+esc(q.q)+'</b>'+
+'<div class="muted">答え：'+esc(q.a)+'</div>'+
+'</div>'
+).join("")
+:'<div class="muted">まだ問題がないよ。</div>';
+}
+
+function clearAll(){
+if(qs.length&&confirm("登録した問題と成績を全部削除する？")){
+qs=[];
+st={correct:0,incorrect:0};
+cur=null;
+localStorage.removeItem("teikiQs");
+localStorage.removeItem("teikiSt");
+quiz.innerHTML="「問題を出す」を押してスタート！";
+render();
+}
+}
+
+render();
+</script>
+</body>
+</html>
