@@ -5,167 +5,491 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📚 定期試験 暗記アプリ</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f6f7fb;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Yu Gothic",sans-serif}
-header{background:white;padding:18px 16px;border-bottom:1px solid #ddd;position:sticky;top:0}
-h1{font-size:22px;margin:0 0 12px}
-.stats{display:flex;gap:8px}
-.stat{flex:1;background:#f0f2f7;border-radius:12px;padding:8px;text-align:center;font-size:12px}
-.stat b{display:block;font-size:20px}
-main{max-width:700px;margin:auto;padding:16px}
-section{background:white;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 2px 10px #0001}
-h2{font-size:18px;margin:0 0 12px}
-label{display:block;font-weight:bold;font-size:13px;margin:12px 0 6px}
-input,textarea,select,button{width:100%;font:inherit;border-radius:10px}
-input,textarea,select{padding:11px;border:1px solid #ccc;background:white}
-textarea{min-height:90px}
-button{padding:12px;margin-top:10px;border:0;background:#333;color:white;font-weight:bold}
-.secondary{background:#e9ebf0;color:#222}
-.danger{background:#c83b3b}
-.quiz{background:#f8f9fc;border-radius:14px;padding:16px}
-.subject{font-size:12px;background:#e7eaf2;padding:4px 8px;border-radius:999px;display:inline-block}
-.question{font-size:19px;line-height:1.6;margin-top:8px;white-space:pre-wrap}
-.answer{margin-top:12px;padding:12px;background:white;border:1px dashed #aaa;border-radius:10px}
-.row{display:flex;gap:8px}.row button{flex:1}
-.muted{color:#777;font-size:13px}
-.item{border-top:1px solid #eee;padding:12px 0}
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    background: #f7f8fc;
+    color: #222;
+  }
+  header {
+    background: #5b6ee1;
+    color: white;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  header h1 { margin: 0; font-size: 22px; }
+  main { max-width: 760px; margin: 0 auto; padding: 16px; }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  }
+  h2 { font-size: 18px; margin: 0 0 12px; }
+  h3 { font-size: 16px; margin: 0 0 10px; }
+  select, input, textarea, button {
+    width: 100%;
+    font: inherit;
+    border-radius: 10px;
+  }
+  select, input, textarea {
+    border: 1px solid #d5d8e2;
+    padding: 11px;
+    background: white;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 10px 0 5px;
+  }
+  button {
+    border: none;
+    padding: 11px 12px;
+    background: #5b6ee1;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  button.secondary { background: #8b90a3; }
+  button.danger { background: #d9534f; }
+  button.light { background: #eef0ff; color: #4452b8; }
+  button:disabled { opacity: .5; cursor: default; }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .stat {
+    background: #f2f3f8;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+  .stat strong { display: block; font-size: 22px; }
+  .quiz-box {
+    background: #f8f8ff;
+    border: 1px solid #e1e3f5;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 10px;
+  }
+  #quizQuestion {
+    font-size: 18px;
+    font-weight: bold;
+    white-space: pre-wrap;
+    margin-bottom: 12px;
+  }
+  #quizAnswer {
+    display: none;
+    background: #fff7d6;
+    border-radius: 10px;
+    padding: 12px;
+    white-space: pre-wrap;
+  }
+  .question-item {
+    border-top: 1px solid #eee;
+    padding: 12px 0;
+  }
+  .question-item:first-child { border-top: none; }
+  .question-meta { font-size: 12px; color: #777; }
+  .question-text {
+    font-weight: bold;
+    margin: 5px 0;
+    white-space: pre-wrap;
+  }
+  .question-answer {
+    color: #555;
+    white-space: pre-wrap;
+  }
+  .small { font-size: 12px; color: #777; line-height: 1.6; }
+  .empty { color: #888; text-align: center; padding: 15px 0; }
+  .top-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 480px) {
+    .row, .top-actions { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
-
 <body>
+
 <header>
-<h1>📚 定期試験 暗記アプリ</h1>
-<div class="stats">
-<div class="stat">登録<b id="count">0</b>問</div>
-<div class="stat">正解<b id="correct">0</b></div>
-<div class="stat">不正解<b id="incorrect">0</b></div>
-</div>
+  <h1>📚 定期試験 暗記アプリ</h1>
 </header>
 
 <main>
 
-<section>
-<h2>✏️ 問題を登録</h2>
+  <section class="card">
+    <h2>📖 今やる定期試験</h2>
+    <select id="examSelect"></select>
 
-<label>教科</label>
-<select id="subject">
-<option>国語</option>
-<option>数学</option>
-<option>英語</option>
-<option>理科</option>
-<option>社会</option>
-<option>その他</option>
-</select>
+    <div class="top-actions">
+      <button onclick="addExam()">＋ 新しい定期試験を作る</button>
+      <button class="secondary" onclick="renameExam()">✏️ 名前を変更</button>
+    </div>
 
-<label>問題</label>
-<textarea id="question" placeholder="例：鎌倉幕府が成立した年は？"></textarea>
+    <div class="stats">
+      <div class="stat">
+        <span>問題数</span>
+        <strong id="count">0</strong>
+      </div>
+      <div class="stat">
+        <span>正解</span>
+        <strong id="correct">0</strong>
+      </div>
+      <div class="stat">
+        <span>不正解</span>
+        <strong id="incorrect">0</strong>
+      </div>
+    </div>
 
-<label>答え</label>
-<input id="answer" placeholder="例：1192年">
+    <p class="small">
+      定期試験ごとに問題を分けて保存できます。<br>
+      過去の定期試験を残したまま、新しい試験を追加できます。
+    </p>
+  </section>
 
-<button onclick="addQ()">＋ 問題を登録</button>
-</section>
+  <section class="card">
+    <h2>✏️ 問題を登録</h2>
 
-<section>
-<h2>🎲 ランダム問題</h2>
-<div id="quiz" class="muted">「問題を出す」を押してスタート！</div>
-<button onclick="nextQ()">🎲 問題を出す</button>
-</section>
+    <label>教科</label>
+    <select id="subject">
+      <option>国語</option>
+      <option>数学</option>
+      <option>英語</option>
+      <option>理科</option>
+      <option>社会</option>
+      <option>その他</option>
+    </select>
 
-<section>
-<h2>📋 登録した問題</h2>
-<div id="list"></div>
-<button class="danger" onclick="clearAll()">すべて削除</button>
-</section>
+    <label>問題</label>
+    <textarea id="question" placeholder="例：日本国憲法が施行されたのは何年？"></textarea>
+
+    <label>答え</label>
+    <textarea id="answer" placeholder="例：1947年"></textarea>
+
+    <button onclick="addQuestion()">＋ この定期試験に登録</button>
+  </section>
+
+  <section class="card">
+    <h2>🎲 ランダム問題</h2>
+
+    <button onclick="startQuiz()">🎲 問題を出す</button>
+
+    <div class="quiz-box">
+      <div id="quizQuestion">「問題を出す」を押してね！</div>
+      <div id="quizAnswer"></div>
+
+      <button id="showAnswerBtn" class="light" onclick="showAnswer()" disabled>
+        👀 答えを見る
+      </button>
+
+      <div class="row">
+        <button id="correctBtn" onclick="markCorrect()" disabled>⭕ 正解</button>
+        <button id="incorrectBtn" class="secondary" onclick="markIncorrect()" disabled>❌ 不正解</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📝 登録済み問題</h2>
+    <div id="questionList"></div>
+  </section>
+
+  <section class="card">
+    <h2>⚠️ この定期試験の管理</h2>
+    <button class="danger" onclick="deleteCurrentExam()">この定期試験を削除</button>
+    <p class="small">
+      ※この定期試験の問題・正解数・不正解数がすべて削除されます。<br>
+      他の定期試験には影響しません。
+    </p>
+  </section>
 
 </main>
 
 <script>
-let qs=JSON.parse(localStorage.getItem("teikiQs")||"[]");
-let st=JSON.parse(localStorage.getItem("teikiSt")||'{"correct":0,"incorrect":0}');
-let cur=null;
+const STORAGE_KEY = "teikiStudyV2";
+const OLD_Q_KEY = "teikiQs";
+const OLD_S_KEY = "teikiSt";
 
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({
-"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-}[c]));
+let data = loadData();
+let currentQuiz = null;
 
-function save(){
-localStorage.setItem("teikiQs",JSON.stringify(qs));
-localStorage.setItem("teikiSt",JSON.stringify(st));
-render();
+function makeId() {
+  return "exam_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
 }
 
-function addQ(){
-let s=subject.value,q=question.value.trim(),a=answer.value.trim();
-if(!q||!a){alert("問題と答えを入力してね！");return}
-qs.push({id:Date.now(),s:s,q:q,a:a,correct:0,incorrect:0});
-question.value="";
-answer.value="";
-save();
-alert("登録したよ！📚");
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.exams) return parsed;
+    } catch(e) {}
+  }
+
+  // 以前のバージョンで登録した問題があれば自動で引き継ぐ
+  const oldQuestions = JSON.parse(localStorage.getItem(OLD_Q_KEY) || "[]");
+  const oldStats = JSON.parse(localStorage.getItem(OLD_S_KEY) || '{"correct":0,"incorrect":0}');
+
+  const id = makeId();
+
+  return {
+    current: id,
+    exams: {
+      [id]: {
+        name: "最初の定期試験",
+        questions: Array.isArray(oldQuestions) ? oldQuestions : [],
+        correct: Number(oldStats.correct) || 0,
+        incorrect: Number(oldStats.incorrect) || 0
+      }
+    }
+  };
 }
 
-function nextQ(){
-if(!qs.length){
-quiz.innerHTML="まだ問題が登録されていないよ！";
-return;
-}
-cur=qs[Math.floor(Math.random()*qs.length)];
-quiz.innerHTML=
-'<div class="quiz">'+
-'<div class="subject">'+esc(cur.s)+'</div>'+
-'<div class="question">'+esc(cur.q)+'</div>'+
-'<button class="secondary" onclick="showA()">👀 答えを見る</button>'+
-'<div id="ans"></div></div>';
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-function showA(){
-ans.innerHTML=
-'<div class="answer"><b>答え：</b>'+esc(cur.a)+'</div>'+
-'<div class="row">'+
-'<button onclick="mark(1)">⭕ 正解</button>'+
-'<button onclick="mark(0)">❌ 不正解</button>'+
-'</div>';
+function currentExam() {
+  return data.exams[data.current];
 }
 
-function mark(ok){
-let q=qs.find(x=>x.id===cur.id);
-if(ok){q.correct++;st.correct++}
-else{q.incorrect++;st.incorrect++}
-save();
-nextQ();
+function render() {
+  const select = document.getElementById("examSelect");
+  select.innerHTML = "";
+
+  Object.entries(data.exams).forEach(([id, exam]) => {
+    const option = document.createElement("option");
+    option.value = id;
+    option.textContent = exam.name;
+    if (id === data.current) option.selected = true;
+    select.appendChild(option);
+  });
+
+  const exam = currentExam();
+
+  document.getElementById("count").textContent = exam.questions.length;
+  document.getElementById("correct").textContent = exam.correct;
+  document.getElementById("incorrect").textContent = exam.incorrect;
+
+  renderQuestions();
+
+  // 問題がない試験ではクイズをリセット
+  if (!exam.questions.length) {
+    currentQuiz = null;
+    document.getElementById("quizQuestion").textContent = "まだ問題がないよ！問題を登録してね。";
+    document.getElementById("quizAnswer").style.display = "none";
+    document.getElementById("quizAnswer").textContent = "";
+    setQuizButtons(false);
+  }
 }
 
-function render(){
-count.textContent=qs.length;
-correct.textContent=st.correct;
-incorrect.textContent=st.incorrect;
+function renderQuestions() {
+  const list = document.getElementById("questionList");
+  const exam = currentExam();
 
-list.innerHTML=qs.length?
-qs.slice().reverse().map(q=>
-'<div class="item">'+
-'<div class="muted">'+esc(q.s)+'　正解 '+q.correct+
-' / 不正解 '+q.incorrect+'</div>'+
-'<b>'+esc(q.q)+'</b>'+
-'<div class="muted">答え：'+esc(q.a)+'</div>'+
-'</div>'
-).join("")
-:'<div class="muted">まだ問題がないよ。</div>';
+  if (!exam.questions.length) {
+    list.innerHTML = '<div class="empty">まだ問題が登録されていません。</div>';
+    return;
+  }
+
+  list.innerHTML = "";
+
+  exam.questions.forEach((q, index) => {
+    const div = document.createElement("div");
+    div.className = "question-item";
+
+    div.innerHTML = `
+      <div class="question-meta">${index + 1}問目　／　${escapeHtml(q.subject || "その他")}</div>
+      <div class="question-text">${escapeHtml(q.question)}</div>
+      <div class="question-answer">答え：${escapeHtml(q.answer)}</div>
+      <button class="danger" onclick="deleteQuestion(${index})">この問題を削除</button>
+    `;
+
+    list.appendChild(div);
+  });
 }
 
-function clearAll(){
-if(qs.length&&confirm("登録した問題と成績を全部削除する？")){
-qs=[];
-st={correct:0,incorrect:0};
-cur=null;
-localStorage.removeItem("teikiQs");
-localStorage.removeItem("teikiSt");
-quiz.innerHTML="「問題を出す」を押してスタート！";
-render();
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
+
+function addExam() {
+  const name = prompt("新しい定期試験の名前を入力してね！\n例：2学期期末");
+  if (!name || !name.trim()) return;
+
+  const id = makeId();
+
+  data.exams[id] = {
+    name: name.trim(),
+    questions: [],
+    correct: 0,
+    incorrect: 0
+  };
+
+  data.current = id;
+  saveData();
+  currentQuiz = null;
+  resetQuizDisplay();
+  render();
+}
+
+function renameExam() {
+  const exam = currentExam();
+  const name = prompt("定期試験の新しい名前を入力してね！", exam.name);
+
+  if (!name || !name.trim()) return;
+
+  exam.name = name.trim();
+  saveData();
+  render();
+}
+
+document.getElementById("examSelect").addEventListener("change", function() {
+  data.current = this.value;
+  saveData();
+  currentQuiz = null;
+  resetQuizDisplay();
+  render();
+});
+
+function addQuestion() {
+  const subject = document.getElementById("subject").value;
+  const question = document.getElementById("question").value.trim();
+  const answer = document.getElementById("answer").value.trim();
+
+  if (!question || !answer) {
+    alert("問題と答えを入力してね！");
+    return;
+  }
+
+  currentExam().questions.push({
+    subject,
+    question,
+    answer
+  });
+
+  saveData();
+
+  document.getElementById("question").value = "";
+  document.getElementById("answer").value = "";
+
+  render();
+  alert("問題を登録したよ！📚");
+}
+
+function deleteQuestion(index) {
+  if (!confirm("この問題を削除する？")) return;
+
+  currentExam().questions.splice(index, 1);
+  saveData();
+
+  currentQuiz = null;
+  resetQuizDisplay();
+  render();
+}
+
+function startQuiz() {
+  const exam = currentExam();
+
+  if (!exam.questions.length) {
+    alert("まだ問題がないよ！先に問題を登録してね。");
+    return;
+  }
+
+  const index = Math.floor(Math.random() * exam.questions.length);
+  currentQuiz = exam.questions[index];
+
+  document.getElementById("quizQuestion").textContent = currentQuiz.question;
+  document.getElementById("quizAnswer").textContent = "答え：" + currentQuiz.answer;
+  document.getElementById("quizAnswer").style.display = "none";
+
+  setQuizButtons(true);
+}
+
+function showAnswer() {
+  if (!currentQuiz) return;
+  document.getElementById("quizAnswer").style.display = "block";
+}
+
+function markCorrect() {
+  if (!currentQuiz) return;
+
+  currentExam().correct++;
+  saveData();
+  render();
+
+  alert("⭕ 正解！えらい！");
+  startQuiz();
+}
+
+function markIncorrect() {
+  if (!currentQuiz) return;
+
+  currentExam().incorrect++;
+  saveData();
+  render();
+
+  alert("❌ 次は取れる！もう一回やろう！");
+  startQuiz();
+}
+
+function setQuizButtons(enabled) {
+  document.getElementById("showAnswerBtn").disabled = !enabled;
+  document.getElementById("correctBtn").disabled = !enabled;
+  document.getElementById("incorrectBtn").disabled = !enabled;
+}
+
+function resetQuizDisplay() {
+  document.getElementById("quizQuestion").textContent = "「問題を出す」を押してね！";
+  document.getElementById("quizAnswer").textContent = "";
+  document.getElementById("quizAnswer").style.display = "none";
+  setQuizButtons(false);
+}
+
+function deleteCurrentExam() {
+  const ids = Object.keys(data.exams);
+
+  if (ids.length <= 1) {
+    alert("最後の1つの定期試験は削除できません。\n新しい定期試験を作ってから削除してね！");
+    return;
+  }
+
+  const exam = currentExam();
+
+  if (!confirm(
+    "「" + exam.name + "」を削除する？\n\n" +
+    "この定期試験の問題と成績がすべて削除されます。"
+  )) return;
+
+  delete data.exams[data.current];
+
+  data.current = Object.keys(data.exams)[0];
+
+  saveData();
+  currentQuiz = null;
+  resetQuizDisplay();
+  render();
 }
 
 render();
 </script>
+
 </body>
 </html>
