@@ -161,16 +161,6 @@
   <section class="card">
     <h2>✏️ 問題を登録</h2>
 
-    <label>教科</label>
-    <select id="subject">
-      <option>国語</option>
-      <option>数学</option>
-      <option>英語</option>
-      <option>理科</option>
-      <option>社会</option>
-      <option>その他</option>
-    </select>
-
     <label>問題</label>
     <textarea id="question" placeholder="例：日本国憲法が施行されたのは何年？"></textarea>
 
@@ -181,9 +171,16 @@
   </section>
 
   <section class="card">
-    <h2>🎲 ランダム問題</h2>
+    <h2>🎲 問題演習</h2>
+
+    <label>出題モード</label>
+    <select id="quizMode">
+      <option value="normal">🔄 一周するまで同じ問題を出さない</option>
+      <option value="wrong">❌ 間違えた問題だけ</option>
+    </select>
 
     <button onclick="startQuiz()">🎲 問題を出す</button>
+    <p id="quizStatus" class="small"></p>
 
     <div class="quiz-box">
       <div id="quizQuestion">「問題を出す」を押してね！</div>
@@ -222,10 +219,12 @@ const OLD_Q_KEY = "teikiQs";
 const OLD_S_KEY = "teikiSt";
 
 let data = loadData();
+saveData();
 let currentQuiz = null;
+let currentQuizMode = "normal";
 
 function makeId() {
-  return "exam_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+  return "id_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
 }
 
 function loadData() {
@@ -234,7 +233,10 @@ function loadData() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (parsed && parsed.exams) return parsed;
+      if (parsed && parsed.exams) {
+        normalizeData(parsed);
+        return parsed;
+      }
     } catch(e) {}
   }
 
@@ -244,17 +246,35 @@ function loadData() {
 
   const id = makeId();
 
-  return {
+  const result = {
     current: id,
     exams: {
       [id]: {
         name: "最初の定期試験",
         questions: Array.isArray(oldQuestions) ? oldQuestions : [],
         correct: Number(oldStats.correct) || 0,
-        incorrect: Number(oldStats.incorrect) || 0
+        incorrect: Number(oldStats.incorrect) || 0,
+        remainingIds: []
       }
     }
   };
+
+  normalizeData(result);
+  return result;
+}
+
+function normalizeData(obj) {
+  Object.values(obj.exams || {}).forEach(exam => {
+    if (!Array.isArray(exam.questions)) exam.questions = [];
+    exam.questions.forEach(q => {
+      if (!q.id) q.id = makeId();
+      if (typeof q.wrong !== "boolean") q.wrong = false;
+    });
+    if (!Array.isArray(exam.remainingIds)) exam.remainingIds = [];
+    exam.remainingIds = exam.remainingIds.filter(id =>
+      exam.questions.some(q => q.id === id)
+    );
+  });
 }
 
 function saveData() {
@@ -311,7 +331,7 @@ function renderQuestions() {
     div.className = "question-item";
 
     div.innerHTML = `
-      <div class="question-meta">${index + 1}問目　／　${escapeHtml(q.subject || "その他")}</div>
+      <div class="question-meta">${index + 1}問目</div>
       <div class="question-text">${escapeHtml(q.question)}</div>
       <div class="question-answer">答え：${escapeHtml(q.answer)}</div>
       <button class="danger" onclick="deleteQuestion(${index})">この問題を削除</button>
@@ -370,7 +390,6 @@ document.getElementById("examSelect").addEventListener("change", function() {
 });
 
 function addQuestion() {
-  const subject = document.getElementById("subject").value;
   const question = document.getElementById("question").value.trim();
   const answer = document.getElementById("answer").value.trim();
 
@@ -380,9 +399,11 @@ function addQuestion() {
   }
 
   currentExam().questions.push({
+    id: makeId(),
     subject,
     question,
-    answer
+    answer,
+    wrong: false
   });
 
   saveData();
@@ -397,7 +418,10 @@ function addQuestion() {
 function deleteQuestion(index) {
   if (!confirm("この問題を削除する？")) return;
 
-  currentExam().questions.splice(index, 1);
+  const exam = currentExam();
+  const deletedId = exam.questions[index]?.id;
+  exam.questions.splice(index, 1);
+  exam.remainingIds = exam.remainingIds.filter(id => id !== deletedId);
   saveData();
 
   currentQuiz = null;
@@ -407,20 +431,75 @@ function deleteQuestion(index) {
 
 function startQuiz() {
   const exam = currentExam();
+  const mode = document.getElementById("quizMode").value;
+  currentQuizMode = mode;
 
   if (!exam.questions.length) {
     alert("まだ問題がないよ！先に問題を登録してね。");
     return;
   }
 
-  const index = Math.floor(Math.random() * exam.questions.length);
-  currentQuiz = exam.questions[index];
+  let candidates;
+
+  if (mode === "wrong") {
+    candidates = exam.questions.filter(q => q.wrong);
+    if (!candidates.length) {
+      currentQuiz = null;
+      document.getElementById("quizQuestion").textContent = "今のところ間違えた問題はないよ！🎉";
+      document.getElementById("quizAnswer").style.display = "none";
+      document.getElementById("quizStatus").textContent = "問題を間違えると、ここに追加されます。";
+      setQuizButtons(false);
+      return;
+    }
+  } else {
+    // 通常モード：一周するまで同じ問題を出さない
+    const allIds = exam.questions.map(q => q.id);
+    let remaining = exam.remainingIds.filter(id => allIds.includes(id));
+
+    if (!remaining.length) {
+      remaining = [...allIds];
+      document.getElementById("quizStatus").textContent = "🔄 新しい一周をスタート！";
+    }
+
+    exam.remainingIds = remaining;
+    const chosenId = remaining[Math.floor(Math.random() * remaining.length)];
+    exam.remainingIds = remaining.filter(id => id !== chosenId);
+    candidates = exam.questions.filter(q => q.id === chosenId);
+    saveData();
+  }
+
+  // 間違えた問題モードも、同じ問題を一周するまで重複させない
+  if (mode === "wrong") {
+    if (!exam.wrongRemainingIds || !exam.wrongRemainingIds.length ||
+        exam.wrongRemainingIds.some(id => !candidates.some(q => q.id === id)) ||
+        exam.wrongRemainingIds.length > candidates.length) {
+      exam.wrongRemainingIds = candidates.map(q => q.id);
+    }
+    const chosenId = exam.wrongRemainingIds[Math.floor(Math.random() * exam.wrongRemainingIds.length)];
+    exam.wrongRemainingIds = exam.wrongRemainingIds.filter(id => id !== chosenId);
+    currentQuiz = candidates.find(q => q.id === chosenId);
+    saveData();
+  } else {
+    currentQuiz = candidates[0];
+  }
 
   document.getElementById("quizQuestion").textContent = currentQuiz.question;
   document.getElementById("quizAnswer").textContent = "答え：" + currentQuiz.answer;
   document.getElementById("quizAnswer").style.display = "none";
 
+  updateQuizStatus();
   setQuizButtons(true);
+}
+
+function updateQuizStatus() {
+  const exam = currentExam();
+  const status = document.getElementById("quizStatus");
+  if (currentQuizMode === "wrong") {
+    const n = exam.questions.filter(q => q.wrong).length;
+    status.textContent = `❌ 間違えた問題：${n}問`;
+  } else {
+    status.textContent = `🔄 この一周で残り：${exam.remainingIds.length}問`;
+  }
 }
 
 function showAnswer() {
@@ -432,6 +511,7 @@ function markCorrect() {
   if (!currentQuiz) return;
 
   currentExam().correct++;
+  currentQuiz.wrong = false;
   saveData();
   render();
 
@@ -443,10 +523,11 @@ function markIncorrect() {
   if (!currentQuiz) return;
 
   currentExam().incorrect++;
+  currentQuiz.wrong = true;
   saveData();
   render();
 
-  alert("❌ 次は取れる！もう一回やろう！");
+  alert("❌ 次は取れる！間違えた問題に追加したよ！");
   startQuiz();
 }
 
@@ -460,6 +541,7 @@ function resetQuizDisplay() {
   document.getElementById("quizQuestion").textContent = "「問題を出す」を押してね！";
   document.getElementById("quizAnswer").textContent = "";
   document.getElementById("quizAnswer").style.display = "none";
+  document.getElementById("quizStatus").textContent = "";
   setQuizButtons(false);
 }
 
