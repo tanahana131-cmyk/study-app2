@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -5,572 +6,514 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📚 定期試験 暗記アプリ</title>
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
-    background: #f7f8fc;
-    color: #222;
-  }
-  header {
-    background: #5b6ee1;
-    color: white;
-    padding: 18px 16px;
-    text-align: center;
-  }
-  header h1 { margin: 0; font-size: 22px; }
-  main { max-width: 760px; margin: 0 auto; padding: 16px; }
-  .card {
-    background: white;
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.06);
-  }
-  h2 { font-size: 18px; margin: 0 0 12px; }
-  h3 { font-size: 16px; margin: 0 0 10px; }
-  select, input, textarea, button {
-    width: 100%;
-    font: inherit;
-    border-radius: 10px;
-  }
-  select, input, textarea {
-    border: 1px solid #d5d8e2;
-    padding: 11px;
-    background: white;
-  }
-  textarea { min-height: 90px; resize: vertical; }
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: bold;
-    margin: 10px 0 5px;
-  }
-  button {
-    border: none;
-    padding: 11px 12px;
-    background: #5b6ee1;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 8px;
-  }
-  button.secondary { background: #8b90a3; }
-  button.danger { background: #d9534f; }
-  button.light { background: #eef0ff; color: #4452b8; }
-  button:disabled { opacity: .5; cursor: default; }
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .stat {
-    background: #f2f3f8;
-    border-radius: 12px;
-    padding: 10px;
-    text-align: center;
-  }
-  .stat strong { display: block; font-size: 22px; }
-  .quiz-box {
-    background: #f8f8ff;
-    border: 1px solid #e1e3f5;
-    border-radius: 12px;
-    padding: 14px;
-    margin-top: 10px;
-  }
-  #quizQuestion {
-    font-size: 18px;
-    font-weight: bold;
-    white-space: pre-wrap;
-    margin-bottom: 12px;
-  }
-  #quizAnswer {
-    display: none;
-    background: #fff7d6;
-    border-radius: 10px;
-    padding: 12px;
-    white-space: pre-wrap;
-  }
-  .question-item {
-    border-top: 1px solid #eee;
-    padding: 12px 0;
-  }
-  .question-item:first-child { border-top: none; }
-  .question-meta { font-size: 12px; color: #777; }
-  .question-text {
-    font-weight: bold;
-    margin: 5px 0;
-    white-space: pre-wrap;
-  }
-  .question-answer {
-    color: #555;
-    white-space: pre-wrap;
-  }
-  .small { font-size: 12px; color: #777; line-height: 1.6; }
-  .empty { color: #888; text-align: center; padding: 15px 0; }
-  .top-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  @media (max-width: 480px) {
-    .row, .top-actions { grid-template-columns: 1fr; }
-  }
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;background:#f7f8fc;color:#222}
+header{background:#5b6ee1;color:white;padding:18px 16px;text-align:center}
+header h1{margin:0;font-size:22px}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:white;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+h2{font-size:18px;margin:0 0 12px}
+select,input,textarea,button{width:100%;font:inherit;border-radius:10px}
+select,input,textarea{border:1px solid #d5d8e2;padding:11px;background:white}
+textarea{min-height:90px;resize:vertical}
+label{display:block;font-size:13px;font-weight:bold;margin:10px 0 5px}
+button{border:none;padding:11px 12px;background:#5b6ee1;color:white;font-weight:bold;cursor:pointer;margin-top:8px}
+button.secondary{background:#8b90a3}
+button.danger{background:#d9534f}
+button.light{background:#eef0ff;color:#4452b8}
+button:disabled{opacity:.5;cursor:default}
+.row,.top-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat{background:#f2f3f8;border-radius:12px;padding:10px;text-align:center}
+.stat strong{display:block;font-size:22px}
+.quiz-box{background:#f8f8ff;border:1px solid #e1e3f5;border-radius:12px;padding:14px;margin-top:10px}
+#quizQuestion{font-size:18px;font-weight:bold;white-space:pre-wrap;margin-bottom:12px}
+#quizAnswer{display:none;background:#fff7d6;border-radius:10px;padding:12px;white-space:pre-wrap}
+.question-item{border-top:1px solid #eee;padding:12px 0}
+.question-item:first-child{border-top:none}
+.question-meta{font-size:12px;color:#777}
+.question-text{font-weight:bold;margin:5px 0;white-space:pre-wrap}
+.question-answer{color:#555;white-space:pre-wrap}
+.small{font-size:12px;color:#777;line-height:1.6}
+.empty{color:#888;text-align:center;padding:15px 0}
+.path{background:#f1f2ff;border-radius:10px;padding:10px;margin-bottom:10px;font-size:14px;line-height:1.7}
+.path strong{color:#4b59c6}
+.notice{background:#fff8df;border-radius:10px;padding:10px;font-size:12px;line-height:1.6;margin-top:10px}
+@media(max-width:480px){.row,.top-actions{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<header>
-  <h1>📚 定期試験 暗記アプリ</h1>
-</header>
-
+<header><h1>📚 定期試験 暗記アプリ</h1></header>
 <main>
+<section class="card">
+  <h2>🗂️ 試験を選ぶ</h2>
+  <label>① 年度・学年</label><select id="yearSelect"></select>
+  <label>② 試験期間</label><select id="periodSelect"></select>
+  <label>③ 教科・フォルダ</label><select id="subjectSelect"></select>
+  <div class="path" id="currentPath"></div>
+  <div class="top-actions">
+    <button onclick="addExam()">＋ フォルダ（試験）を追加</button>
+    <button class="secondary" onclick="editFolder()">✏️ 分類・名前を変更</button>
+  </div>
+  <div class="stats">
+    <div class="stat"><span>問題数</span><strong id="count">0</strong></div>
+    <div class="stat"><span>正解</span><strong id="correct">0</strong></div>
+    <div class="stat"><span>不正解</span><strong id="incorrect">0</strong></div>
+  </div>
+  <p class="small">年度 → 試験期間 → 教科の順に選べます。既存の問題は自動で引き継ぎます。</p>
+  <div class="notice">💾 データはこのブラウザ内に保存されています。サイトデータを消さず、同じURL・同じSafariで使ってね。</div>
+</section>
 
-  <section class="card">
-    <h2>📖 今やる定期試験</h2>
-    <select id="examSelect"></select>
+<section class="card">
+  <h2>✏️ 問題を登録</h2>
+  <label>問題</label><textarea id="question" placeholder="例：日本国憲法が施行されたのは何年？"></textarea>
+  <label>答え</label><textarea id="answer" placeholder="例：1947年"></textarea>
+  <button onclick="addQuestion()">＋ このフォルダに登録</button>
+</section>
 
-    <div class="top-actions">
-      <button onclick="addExam()">＋ 新しい定期試験を作る</button>
-      <button class="secondary" onclick="renameExam()">✏️ 名前を変更</button>
+<section class="card">
+  <h2>🎲 問題演習</h2>
+  <label>出題モード</label>
+  <select id="quizMode">
+    <option value="normal">🔄 一周するまで同じ問題を出さない</option>
+    <option value="wrong">❌ 間違えた問題だけ</option>
+  </select>
+  <button onclick="startQuiz()">🎲 問題を出す</button>
+  <p id="quizStatus" class="small"></p>
+  <div class="quiz-box">
+    <div id="quizQuestion">「問題を出す」を押してね！</div>
+    <div id="quizAnswer"></div>
+    <button id="showAnswerBtn" class="light" onclick="showAnswer()" disabled>👀 答えを見る</button>
+    <div class="row">
+      <button id="correctBtn" onclick="markCorrect()" disabled>⭕ 正解</button>
+      <button id="incorrectBtn" class="secondary" onclick="markIncorrect()" disabled>❌ 不正解</button>
     </div>
+  </div>
+</section>
 
-    <div class="stats">
-      <div class="stat">
-        <span>問題数</span>
-        <strong id="count">0</strong>
-      </div>
-      <div class="stat">
-        <span>正解</span>
-        <strong id="correct">0</strong>
-      </div>
-      <div class="stat">
-        <span>不正解</span>
-        <strong id="incorrect">0</strong>
-      </div>
-    </div>
+<section class="card">
+  <h2>📝 登録済み問題</h2>
+  <div id="questionList"></div>
+</section>
 
-    <p class="small">
-      定期試験ごとに問題を分けて保存できます。<br>
-      過去の定期試験を残したまま、新しい試験を追加できます。
-    </p>
-  </section>
-
-  <section class="card">
-    <h2>✏️ 問題を登録</h2>
-
-    <label>問題</label>
-    <textarea id="question" placeholder="例：日本国憲法が施行されたのは何年？"></textarea>
-
-    <label>答え</label>
-    <textarea id="answer" placeholder="例：1947年"></textarea>
-
-    <button onclick="addQuestion()">＋ この定期試験に登録</button>
-  </section>
-
-  <section class="card">
-    <h2>🎲 問題演習</h2>
-
-    <label>出題モード</label>
-    <select id="quizMode">
-      <option value="normal">🔄 一周するまで同じ問題を出さない</option>
-      <option value="wrong">❌ 間違えた問題だけ</option>
-    </select>
-
-    <button onclick="startQuiz()">🎲 問題を出す</button>
-    <p id="quizStatus" class="small"></p>
-
-    <div class="quiz-box">
-      <div id="quizQuestion">「問題を出す」を押してね！</div>
-      <div id="quizAnswer"></div>
-
-      <button id="showAnswerBtn" class="light" onclick="showAnswer()" disabled>
-        👀 答えを見る
-      </button>
-
-      <div class="row">
-        <button id="correctBtn" onclick="markCorrect()" disabled>⭕ 正解</button>
-        <button id="incorrectBtn" class="secondary" onclick="markIncorrect()" disabled>❌ 不正解</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>📝 登録済み問題</h2>
-    <div id="questionList"></div>
-  </section>
-
-  <section class="card">
-    <h2>⚠️ この定期試験の管理</h2>
-    <button class="danger" onclick="deleteCurrentExam()">この定期試験を削除</button>
-    <p class="small">
-      ※この定期試験の問題・正解数・不正解数がすべて削除されます。<br>
-      他の定期試験には影響しません。
-    </p>
-  </section>
-
+<section class="card">
+  <h2>⚠️ このフォルダの管理</h2>
+  <button class="danger" onclick="deleteCurrentExam()">この教科フォルダを削除</button>
+  <p class="small">※このフォルダの問題・成績が削除されます。他のフォルダには影響しません。</p>
+</section>
 </main>
-
 <script>
 const STORAGE_KEY = "teikiStudyV2";
 const OLD_Q_KEY = "teikiQs";
 const OLD_S_KEY = "teikiSt";
-
 let data = loadData();
-saveData();
 let currentQuiz = null;
 let currentQuizMode = "normal";
 
-function makeId() {
-  return "id_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+function makeId(){
+  return "id_"+Date.now()+"_"+Math.random().toString(36).slice(2,10);
 }
 
-function loadData() {
-  const saved = localStorage.getItem(STORAGE_KEY);
+function inferFolders(name){
+  let n = String(name || "既存の定期試験").trim();
+  let year = "未分類", period = "既存の試験", subject = n || "教科未設定";
+  const grade = n.match(/^((?:中|高)\s*[1-9]|(?:20\d{2}年度|令和\d+年度|[一二三]年生))/);
+  if(grade){
+    year = grade[1].replace(/\s/g,"");
+    n = n.slice(grade[0].length).trim();
+  }else if(/^(?:M!LK|その他|趣味)/i.test(n)){
+    return {year:"その他",period:"その他",subject:String(name)};
+  }
 
-  if (saved) {
-    try {
+  const terms = [
+    "前期中間試験","前期中間","前期期末試験","前期期末","前期末試験","前期末",
+    "後期中間試験","後期中間","後期期末試験","後期期末","後期末試験","後期末",
+    "1学期期末試験","1学期期末","1学期中間試験","1学期中間",
+    "2学期期末試験","2学期期末","2学期中間試験","2学期中間",
+    "3学期期末試験","3学期期末","3学期中間試験","3学期中間",
+    "学年末試験","学年末","期末試験","中間試験","期末","中間"
+  ].sort((a,b)=>b.length-a.length);
+
+  let found = null, pos = -1;
+  for(const t of terms){
+    const p = n.indexOf(t);
+    if(p >= 0 && (pos < 0 || p < pos)){found=t;pos=p;}
+  }
+
+  if(found){
+    period = n.slice(0,pos+found.length).trim();
+    subject = n.slice(pos+found.length).replace(/^[\s　①②③④⑤\d\-・]+/,"").trim() || "教科未設定";
+    const tail = n.slice(pos+found.length).match(/^[\s　]*([①②③④⑤])/);
+    if(tail){
+      period += tail[1];
+      subject = n.slice(pos+found.length+tail[0].length).trim() || "教科未設定";
+    }
+  }else{
+    period = "既存の試験";
+    subject = String(name || "教科未設定");
+  }
+  return {year,period,subject};
+}
+
+function loadData(){
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    try{
       const parsed = JSON.parse(saved);
-      if (parsed && parsed.exams) {
+      if(parsed && parsed.exams){
+        Object.values(parsed.exams).forEach(exam=>{
+          if(!exam.year || !exam.period || !exam.subject){
+            const inferred = inferFolders(exam.name);
+            exam.year = exam.year || inferred.year;
+            exam.period = exam.period || inferred.period;
+            exam.subject = exam.subject || inferred.subject;
+          }
+          if(!exam.name) exam.name = exam.subject;
+        });
         normalizeData(parsed);
         return parsed;
       }
-    } catch(e) {}
+    }catch(e){}
   }
 
-  // 以前のバージョンで登録した問題があれば自動で引き継ぐ
   const oldQuestions = JSON.parse(localStorage.getItem(OLD_Q_KEY) || "[]");
   const oldStats = JSON.parse(localStorage.getItem(OLD_S_KEY) || '{"correct":0,"incorrect":0}');
-
   const id = makeId();
-
-  const result = {
-    current: id,
-    exams: {
-      [id]: {
-        name: "最初の定期試験",
-        questions: Array.isArray(oldQuestions) ? oldQuestions : [],
-        correct: Number(oldStats.correct) || 0,
-        incorrect: Number(oldStats.incorrect) || 0,
-        remainingIds: []
-      }
-    }
-  };
-
+  const result = {current:id,exams:{[id]:{
+    name:"最初の定期試験",year:"未分類",period:"既存の試験",subject:"最初の定期試験",
+    questions:Array.isArray(oldQuestions)?oldQuestions:[],
+    correct:Number(oldStats.correct)||0,
+    incorrect:Number(oldStats.incorrect)||0,
+    remainingIds:[]
+  }}};
   normalizeData(result);
   return result;
 }
 
-function normalizeData(obj) {
-  Object.values(obj.exams || {}).forEach(exam => {
-    if (!Array.isArray(exam.questions)) exam.questions = [];
-    exam.questions.forEach(q => {
-      if (!q.id) q.id = makeId();
-      if (typeof q.wrong !== "boolean") q.wrong = false;
+function normalizeData(obj){
+  if(!obj.exams || !Object.keys(obj.exams).length){
+    const id = makeId();
+    obj.current = id;
+    obj.exams = {[id]:{
+      name:"最初の定期試験",year:"未分類",period:"既存の試験",
+      subject:"最初の定期試験",questions:[],correct:0,incorrect:0,remainingIds:[]
+    }};
+  }
+  Object.values(obj.exams).forEach(exam=>{
+    if(!Array.isArray(exam.questions)) exam.questions=[];
+    exam.questions.forEach(q=>{
+      if(!q.id) q.id=makeId();
+      if(typeof q.wrong!=="boolean") q.wrong=false;
     });
-    if (!Array.isArray(exam.remainingIds)) exam.remainingIds = [];
-    exam.remainingIds = exam.remainingIds.filter(id =>
-      exam.questions.some(q => q.id === id)
-    );
+    if(!Array.isArray(exam.remainingIds)) exam.remainingIds=[];
+    exam.remainingIds=exam.remainingIds.filter(id=>exam.questions.some(q=>q.id===id));
+    if(!Array.isArray(exam.wrongRemainingIds)) exam.wrongRemainingIds=[];
   });
+  if(!obj.current || !obj.exams[obj.current]) obj.current=Object.keys(obj.exams)[0];
 }
 
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+function saveData(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
-
-function currentExam() {
+function currentExam(){
   return data.exams[data.current];
 }
-
-function render() {
-  const select = document.getElementById("examSelect");
-  select.innerHTML = "";
-
-  Object.entries(data.exams).forEach(([id, exam]) => {
-    const option = document.createElement("option");
-    option.value = id;
-    option.textContent = exam.name;
-    if (id === data.current) option.selected = true;
-    select.appendChild(option);
+function uniqueSorted(values){
+  return [...new Set(values)].sort((a,b)=>a.localeCompare(b,"ja"));
+}
+function fillSelect(el,values,selected){
+  el.innerHTML="";
+  values.forEach(value=>{
+    const op=document.createElement("option");
+    op.value=value;op.textContent=value;op.selected=value===selected;
+    el.appendChild(op);
   });
+  if(!values.includes(selected)&&values.length) el.value=values[0];
+}
+function selectedYear(){return document.getElementById("yearSelect").value}
+function selectedPeriod(){return document.getElementById("periodSelect").value}
+function selectedSubject(){return document.getElementById("subjectSelect").value}
 
-  const exam = currentExam();
+function getMatchingExams(){
+  return Object.entries(data.exams).filter(([id,e])=>
+    e.year===selectedYear()&&e.period===selectedPeriod()&&e.subject===selectedSubject()
+  );
+}
+function syncCurrentFromSelectors(){
+  const matches=getMatchingExams();
+  if(matches.length) data.current=matches[0][0];
+  saveData();
+  currentQuiz=null;
+  resetQuizDisplay();
+  renderDetails();
+}
 
-  document.getElementById("count").textContent = exam.questions.length;
-  document.getElementById("correct").textContent = exam.correct;
-  document.getElementById("incorrect").textContent = exam.incorrect;
+function renderSelectors(){
+  const years=uniqueSorted(Object.values(data.exams).map(e=>e.year||"未分類"));
+  const y=years.includes(currentExam().year)?currentExam().year:years[0];
+  fillSelect(document.getElementById("yearSelect"),years,y);
 
+  const periods=uniqueSorted(Object.values(data.exams)
+    .filter(e=>e.year===y).map(e=>e.period||"既存の試験"));
+  const p=periods.includes(currentExam().period)?currentExam().period:periods[0];
+  fillSelect(document.getElementById("periodSelect"),periods,p);
+
+  const subjects=uniqueSorted(Object.values(data.exams)
+    .filter(e=>e.year===y&&e.period===p).map(e=>e.subject||e.name||"教科未設定"));
+  const s=subjects.includes(currentExam().subject)?currentExam().subject:subjects[0];
+  fillSelect(document.getElementById("subjectSelect"),subjects,s);
+
+  const matches=getMatchingExams();
+  if(matches.length) data.current=matches[0][0];
+  saveData();
+}
+
+function render(){
+  renderSelectors();
+  renderDetails();
+}
+
+function renderDetails(){
+  const exam=currentExam();
+  document.getElementById("currentPath").innerHTML=
+    `選択中：<strong>${escapeHtml(exam.year)}</strong>　›　<strong>${escapeHtml(exam.period)}</strong>　›　<strong>${escapeHtml(exam.subject)}</strong>`;
+  document.getElementById("count").textContent=exam.questions.length;
+  document.getElementById("correct").textContent=exam.correct||0;
+  document.getElementById("incorrect").textContent=exam.incorrect||0;
   renderQuestions();
 
-  // 問題がない試験ではクイズをリセット
-  if (!exam.questions.length) {
-    currentQuiz = null;
-    document.getElementById("quizQuestion").textContent = "まだ問題がないよ！問題を登録してね。";
-    document.getElementById("quizAnswer").style.display = "none";
-    document.getElementById("quizAnswer").textContent = "";
+  if(!exam.questions.length){
+    currentQuiz=null;
+    document.getElementById("quizQuestion").textContent="まだ問題がないよ！問題を登録してね。";
+    document.getElementById("quizAnswer").style.display="none";
+    document.getElementById("quizAnswer").textContent="";
     setQuizButtons(false);
   }
 }
 
-function renderQuestions() {
-  const list = document.getElementById("questionList");
-  const exam = currentExam();
-
-  if (!exam.questions.length) {
-    list.innerHTML = '<div class="empty">まだ問題が登録されていません。</div>';
+function renderQuestions(){
+  const list=document.getElementById("questionList"),exam=currentExam();
+  if(!exam.questions.length){
+    list.innerHTML='<div class="empty">このフォルダにはまだ問題がありません。</div>';
     return;
   }
-
-  list.innerHTML = "";
-
-  exam.questions.forEach((q, index) => {
-    const div = document.createElement("div");
-    div.className = "question-item";
-
-    div.innerHTML = `
-      <div class="question-meta">${index + 1}問目</div>
-      <div class="question-text">${escapeHtml(q.question)}</div>
-      <div class="question-answer">答え：${escapeHtml(q.answer)}</div>
-      <button class="danger" onclick="deleteQuestion(${index})">この問題を削除</button>
-    `;
-
+  list.innerHTML="";
+  exam.questions.forEach((q,index)=>{
+    const div=document.createElement("div");
+    div.className="question-item";
+    div.innerHTML=`<div class="question-meta">${index+1}問目${q.wrong?'　／　❌ 要復習':''}</div><div class="question-text">${escapeHtml(q.question)}</div><div class="question-answer">答え：${escapeHtml(q.answer)}</div><button class="danger" onclick="deleteQuestion(${index})">この問題を削除</button>`;
     list.appendChild(div);
   });
 }
 
-function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+function escapeHtml(text){
+  return String(text).replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
 
-function addExam() {
-  const name = prompt("新しい定期試験の名前を入力してね！\n例：2学期期末");
-  if (!name || !name.trim()) return;
+function addExam(){
+  const year=prompt("① 年度・学年を入力してね\n例：中2、2026年度","中2");
+  if(!year||!year.trim()) return;
+  const period=prompt("② 試験期間を入力してね\n例：後期中間①、学年末","後期中間①");
+  if(!period||!period.trim()) return;
+  const subject=prompt("③ 教科・フォルダ名を入力してね\n例：歴史、地理、M!LKケミ・トリオ名🍼","歴史");
+  if(!subject||!subject.trim()) return;
 
-  const id = makeId();
-
-  data.exams[id] = {
-    name: name.trim(),
-    questions: [],
-    correct: 0,
-    incorrect: 0
-  };
-
-  data.current = id;
-  saveData();
-  currentQuiz = null;
-  resetQuizDisplay();
-  render();
-}
-
-function renameExam() {
-  const exam = currentExam();
-  const name = prompt("定期試験の新しい名前を入力してね！", exam.name);
-
-  if (!name || !name.trim()) return;
-
-  exam.name = name.trim();
-  saveData();
-  render();
-}
-
-document.getElementById("examSelect").addEventListener("change", function() {
-  data.current = this.value;
-  saveData();
-  currentQuiz = null;
-  resetQuizDisplay();
-  render();
-});
-
-function addQuestion() {
-  const question = document.getElementById("question").value.trim();
-  const answer = document.getElementById("answer").value.trim();
-
-  if (!question || !answer) {
-    alert("問題と答えを入力してね！");
+  const existing=Object.entries(data.exams).find(([id,e])=>
+    e.year===year.trim()&&e.period===period.trim()&&e.subject===subject.trim()
+  );
+  if(existing){
+    data.current=existing[0];saveData();render();
+    alert("そのフォルダはもうあるよ！選択したよ。");
     return;
   }
 
-  currentExam().questions.push({
-    id: makeId(),
-    question,
-    answer,
-    wrong: false
+  const id=makeId();
+  data.exams[id]={
+    name:subject.trim(),year:year.trim(),period:period.trim(),subject:subject.trim(),
+    questions:[],correct:0,incorrect:0,remainingIds:[],wrongRemainingIds:[]
+  };
+  data.current=id;saveData();currentQuiz=null;resetQuizDisplay();render();
+}
+
+function editFolder(){
+  const exam=currentExam();
+  const year=prompt("① 年度・学年",exam.year||"未分類");
+  if(!year||!year.trim()) return;
+  const period=prompt("② 試験期間",exam.period||"既存の試験");
+  if(!period||!period.trim()) return;
+  const subject=prompt("③ 教科・フォルダ名",exam.subject||exam.name);
+  if(!subject||!subject.trim()) return;
+
+  const duplicate=Object.entries(data.exams).find(([id,e])=>
+    id!==data.current&&e.year===year.trim()&&e.period===period.trim()&&e.subject===subject.trim()
+  );
+  if(duplicate){
+    alert("同じ分類・名前のフォルダがすでにあるよ。別の名前にしてね。");
+    return;
+  }
+
+  exam.year=year.trim();
+  exam.period=period.trim();
+  exam.subject=subject.trim();
+  exam.name=subject.trim();
+  saveData();render();
+}
+
+["yearSelect","periodSelect","subjectSelect"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",()=>{
+    const year=selectedYear();
+    if(id==="yearSelect"){
+      const periods=uniqueSorted(Object.values(data.exams)
+        .filter(e=>e.year===year).map(e=>e.period));
+      fillSelect(document.getElementById("periodSelect"),periods,periods[0]);
+      const p=selectedPeriod();
+      const subjects=uniqueSorted(Object.values(data.exams)
+        .filter(e=>e.year===year&&e.period===p).map(e=>e.subject));
+      fillSelect(document.getElementById("subjectSelect"),subjects,subjects[0]);
+    }else if(id==="periodSelect"){
+      const subjects=uniqueSorted(Object.values(data.exams)
+        .filter(e=>e.year===year&&e.period===selectedPeriod()).map(e=>e.subject));
+      fillSelect(document.getElementById("subjectSelect"),subjects,subjects[0]);
+    }
+    syncCurrentFromSelectors();
   });
+});
 
+function addQuestion(){
+  const question=document.getElementById("question").value.trim();
+  const answer=document.getElementById("answer").value.trim();
+  if(!question||!answer){
+    alert("問題と答えを入力してね！");
+    return;
+  }
+  currentExam().questions.push({id:makeId(),question,answer,wrong:false});
   saveData();
-
-  document.getElementById("question").value = "";
-  document.getElementById("answer").value = "";
-
-  render();
+  document.getElementById("question").value="";
+  document.getElementById("answer").value="";
+  renderDetails();
   alert("問題を登録したよ！📚");
 }
 
-function deleteQuestion(index) {
-  if (!confirm("この問題を削除する？")) return;
-
-  const exam = currentExam();
-  const deletedId = exam.questions[index]?.id;
-  exam.questions.splice(index, 1);
-  exam.remainingIds = exam.remainingIds.filter(id => id !== deletedId);
-  saveData();
-
-  currentQuiz = null;
-  resetQuizDisplay();
-  render();
+function deleteQuestion(index){
+  if(!confirm("この問題を削除する？")) return;
+  const exam=currentExam(),deletedId=exam.questions[index]?.id;
+  exam.questions.splice(index,1);
+  exam.remainingIds=exam.remainingIds.filter(id=>id!==deletedId);
+  exam.wrongRemainingIds=exam.wrongRemainingIds.filter(id=>id!==deletedId);
+  saveData();currentQuiz=null;resetQuizDisplay();renderDetails();
 }
 
-function startQuiz() {
-  const exam = currentExam();
-  const mode = document.getElementById("quizMode").value;
-  currentQuizMode = mode;
-
-  if (!exam.questions.length) {
+function startQuiz(){
+  const exam=currentExam(),mode=document.getElementById("quizMode").value;
+  currentQuizMode=mode;
+  if(!exam.questions.length){
     alert("まだ問題がないよ！先に問題を登録してね。");
     return;
   }
 
   let candidates;
-
-  if (mode === "wrong") {
-    candidates = exam.questions.filter(q => q.wrong);
-    if (!candidates.length) {
-      currentQuiz = null;
-      document.getElementById("quizQuestion").textContent = "今のところ間違えた問題はないよ！🎉";
-      document.getElementById("quizAnswer").style.display = "none";
-      document.getElementById("quizStatus").textContent = "問題を間違えると、ここに追加されます。";
+  if(mode==="wrong"){
+    candidates=exam.questions.filter(q=>q.wrong);
+    if(!candidates.length){
+      currentQuiz=null;
+      document.getElementById("quizQuestion").textContent="今のところ間違えた問題はないよ！🎉";
+      document.getElementById("quizAnswer").style.display="none";
+      document.getElementById("quizStatus").textContent="問題を間違えると、ここに追加されます。";
       setQuizButtons(false);
       return;
     }
-  } else {
-    // 通常モード：一周するまで同じ問題を出さない
-    const allIds = exam.questions.map(q => q.id);
-    let remaining = exam.remainingIds.filter(id => allIds.includes(id));
 
-    if (!remaining.length) {
-      remaining = [...allIds];
-      document.getElementById("quizStatus").textContent = "🔄 新しい一周をスタート！";
+    let remaining=(exam.wrongRemainingIds||[]).filter(id=>candidates.some(q=>q.id===id));
+    if(!remaining.length){
+      remaining=candidates.map(q=>q.id);
+      document.getElementById("quizStatus").textContent="🔄 間違えた問題の一周をスタート！";
     }
-
-    exam.remainingIds = remaining;
-    const chosenId = remaining[Math.floor(Math.random() * remaining.length)];
-    exam.remainingIds = remaining.filter(id => id !== chosenId);
-    candidates = exam.questions.filter(q => q.id === chosenId);
+    const chosenId=remaining[Math.floor(Math.random()*remaining.length)];
+    exam.wrongRemainingIds=remaining.filter(id=>id!==chosenId);
+    currentQuiz=candidates.find(q=>q.id===chosenId);
+    saveData();
+  }else{
+    const allIds=exam.questions.map(q=>q.id);
+    let remaining=(exam.remainingIds||[]).filter(id=>allIds.includes(id));
+    if(!remaining.length){
+      remaining=[...allIds];
+      document.getElementById("quizStatus").textContent="🔄 新しい一周をスタート！";
+    }
+    const chosenId=remaining[Math.floor(Math.random()*remaining.length)];
+    exam.remainingIds=remaining.filter(id=>id!==chosenId);
+    currentQuiz=exam.questions.find(q=>q.id===chosenId);
     saveData();
   }
 
-  // 間違えた問題モードも、同じ問題を一周するまで重複させない
-  if (mode === "wrong") {
-    if (!exam.wrongRemainingIds || !exam.wrongRemainingIds.length ||
-        exam.wrongRemainingIds.some(id => !candidates.some(q => q.id === id)) ||
-        exam.wrongRemainingIds.length > candidates.length) {
-      exam.wrongRemainingIds = candidates.map(q => q.id);
-    }
-    const chosenId = exam.wrongRemainingIds[Math.floor(Math.random() * exam.wrongRemainingIds.length)];
-    exam.wrongRemainingIds = exam.wrongRemainingIds.filter(id => id !== chosenId);
-    currentQuiz = candidates.find(q => q.id === chosenId);
-    saveData();
-  } else {
-    currentQuiz = candidates[0];
-  }
-
-  document.getElementById("quizQuestion").textContent = currentQuiz.question;
-  document.getElementById("quizAnswer").textContent = "答え：" + currentQuiz.answer;
-  document.getElementById("quizAnswer").style.display = "none";
-
+  document.getElementById("quizQuestion").textContent=currentQuiz.question;
+  document.getElementById("quizAnswer").textContent="答え："+currentQuiz.answer;
+  document.getElementById("quizAnswer").style.display="none";
   updateQuizStatus();
   setQuizButtons(true);
 }
 
-function updateQuizStatus() {
-  const exam = currentExam();
-  const status = document.getElementById("quizStatus");
-  if (currentQuizMode === "wrong") {
-    const n = exam.questions.filter(q => q.wrong).length;
-    status.textContent = `❌ 間違えた問題：${n}問`;
-  } else {
-    status.textContent = `🔄 この一周で残り：${exam.remainingIds.length}問`;
+function updateQuizStatus(){
+  const exam=currentExam(),status=document.getElementById("quizStatus");
+  if(currentQuizMode==="wrong"){
+    status.textContent=`❌ 間違えた問題：${exam.questions.filter(q=>q.wrong).length}問`;
+  }else{
+    status.textContent=`🔄 この一周で残り：${exam.remainingIds.length}問`;
   }
 }
 
-function showAnswer() {
-  if (!currentQuiz) return;
-  document.getElementById("quizAnswer").style.display = "block";
+function showAnswer(){
+  if(currentQuiz) document.getElementById("quizAnswer").style.display="block";
 }
 
-function markCorrect() {
-  if (!currentQuiz) return;
-
-  currentExam().correct++;
-  currentQuiz.wrong = false;
-  saveData();
-  render();
-
+function markCorrect(){
+  if(!currentQuiz) return;
+  currentExam().correct=(currentExam().correct||0)+1;
+  currentQuiz.wrong=false;
+  saveData();renderDetails();
   alert("⭕ 正解！えらい！");
   startQuiz();
 }
 
-function markIncorrect() {
-  if (!currentQuiz) return;
-
-  currentExam().incorrect++;
-  currentQuiz.wrong = true;
-  saveData();
-  render();
-
+function markIncorrect(){
+  if(!currentQuiz) return;
+  currentExam().incorrect=(currentExam().incorrect||0)+1;
+  currentQuiz.wrong=true;
+  saveData();renderDetails();
   alert("❌ 次は取れる！間違えた問題に追加したよ！");
   startQuiz();
 }
 
-function setQuizButtons(enabled) {
-  document.getElementById("showAnswerBtn").disabled = !enabled;
-  document.getElementById("correctBtn").disabled = !enabled;
-  document.getElementById("incorrectBtn").disabled = !enabled;
+function setQuizButtons(enabled){
+  document.getElementById("showAnswerBtn").disabled=!enabled;
+  document.getElementById("correctBtn").disabled=!enabled;
+  document.getElementById("incorrectBtn").disabled=!enabled;
 }
 
-function resetQuizDisplay() {
-  document.getElementById("quizQuestion").textContent = "「問題を出す」を押してね！";
-  document.getElementById("quizAnswer").textContent = "";
-  document.getElementById("quizAnswer").style.display = "none";
-  document.getElementById("quizStatus").textContent = "";
+function resetQuizDisplay(){
+  document.getElementById("quizQuestion").textContent="「問題を出す」を押してね！";
+  document.getElementById("quizAnswer").textContent="";
+  document.getElementById("quizAnswer").style.display="none";
+  document.getElementById("quizStatus").textContent="";
   setQuizButtons(false);
 }
 
-function deleteCurrentExam() {
-  const ids = Object.keys(data.exams);
-
-  if (ids.length <= 1) {
-    alert("最後の1つの定期試験は削除できません。\n新しい定期試験を作ってから削除してね！");
+function deleteCurrentExam(){
+  const ids=Object.keys(data.exams);
+  if(ids.length<=1){
+    alert("最後の1つのフォルダは削除できません。");
     return;
   }
 
-  const exam = currentExam();
-
-  if (!confirm(
-    "「" + exam.name + "」を削除する？\n\n" +
-    "この定期試験の問題と成績がすべて削除されます。"
-  )) return;
+  const exam=currentExam();
+  if(!confirm("「"+exam.year+" / "+exam.period+" / "+exam.subject+"」を削除する？\nこのフォルダの問題と成績がすべて削除されます。")) return;
 
   delete data.exams[data.current];
-
-  data.current = Object.keys(data.exams)[0];
-
-  saveData();
-  currentQuiz = null;
-  resetQuizDisplay();
-  render();
+  data.current=Object.keys(data.exams)[0];
+  saveData();currentQuiz=null;resetQuizDisplay();render();
 }
 
 render();
 </script>
-
 </body>
 </html>
